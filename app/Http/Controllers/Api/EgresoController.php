@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\IndexEgresoRequest;
 use App\Http\Requests\StoreEgresoRequest;
 use App\Http\Requests\UpdateEgresoRequest;
+use App\Http\Resources\Egresos\EgresoCollection;
+use App\Http\Resources\Egresos\EgresoResource;
 use App\Models\Egreso;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -33,9 +35,9 @@ class EgresoController extends Controller
                 ->where('fecha', '<', sprintf('%d-01-01', $anio + 1));
         }
 
-        return response()->json(
+        return (new EgresoCollection(
             $query->orderByDesc('fecha')->orderByDesc('id')->get(),
-        );
+        ))->response();
     }
 
     /**
@@ -48,7 +50,9 @@ class EgresoController extends Controller
             'user_id' => $request->user()->id,
         ]);
 
-        return response()->json($egreso->load(['categoria', 'subcategoria']), Response::HTTP_CREATED);
+        return (new EgresoResource($egreso->load(['categoria', 'subcategoria'])))
+            ->response()
+            ->setStatusCode(Response::HTTP_CREATED);
     }
 
     /**
@@ -56,9 +60,9 @@ class EgresoController extends Controller
      */
     public function show(Request $request, int $egreso): JsonResponse
     {
-        return response()->json(
+        return (new EgresoResource(
             $this->egresoDelUsuario($request, $egreso)->load(['categoria', 'subcategoria']),
-        );
+        ))->response();
     }
 
     /**
@@ -75,7 +79,9 @@ class EgresoController extends Controller
 
         $registro->update($datos);
 
-        return response()->json($registro->fresh()->load(['categoria', 'subcategoria']));
+        return (new EgresoResource(
+            $registro->fresh()->load(['categoria', 'subcategoria']),
+        ))->response();
     }
 
     /**
