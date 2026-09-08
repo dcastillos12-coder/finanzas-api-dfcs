@@ -16,6 +16,9 @@ Route::prefix('auth')->group(function (): void {
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('auth/logout', [AuthController::class, 'logout']);
 
+    Route::get('dashboard/resumen', [DashboardController::class, 'resumen']);
+    Route::get('dashboard/egresos-por-categoria', [DashboardController::class, 'egresosPorCategoria']);
+    Route::get('dashboard/resumen-anual', [DashboardController::class, 'resumenAnual']);
     Route::get('dashboard', DashboardController::class);
 
     Route::apiResource('egresos', EgresoController::class)
